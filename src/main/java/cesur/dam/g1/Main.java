@@ -12,10 +12,7 @@ public class Main {
             R - Read
             U - Update
             D - Delete
-
          */
-
-
 
         String url = "jdbc:mysql://localhost:3307/ad";
         String username = "user" ;
