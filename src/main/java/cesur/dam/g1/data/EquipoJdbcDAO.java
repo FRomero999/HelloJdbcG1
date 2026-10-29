@@ -28,12 +28,7 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
 
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    Equipo equipo = new Equipo();
-                    equipo.setId(rs.getLong("id"));
-                    equipo.setNombre(rs.getString("nombre"));
-                    equipo.setCategoria(rs.getString("categoria"));
-                    equipo.setDisponible(rs.getBoolean("disponible"));
-                    return Optional.ofNullable(equipo);
+                    return Optional.ofNullable(mapper(rs));
                 }
             }
         } catch (SQLException e) {
@@ -52,12 +47,7 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
              PreparedStatement pst = conn.prepareStatement(sql);
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
-                Equipo equipo = new Equipo();
-                equipo.setId(rs.getLong("id"));
-                equipo.setNombre(rs.getString("nombre"));
-                equipo.setCategoria(rs.getString("categoria"));
-                equipo.setDisponible(rs.getBoolean("disponible"));
-                equipos.add(equipo);
+                equipos.add(mapper(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -65,6 +55,8 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
 
         return equipos;
     }
+
+
 
     @Override
     public Equipo save(Equipo obj) {
@@ -119,4 +111,17 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
             throw new RuntimeException(e);
         }
     }
+
+
+    /* Métodos auxiliares */
+
+    public static Equipo mapper(ResultSet rs) throws SQLException {
+        Equipo equipo = new Equipo();
+        equipo.setId(rs.getLong("id"));
+        equipo.setNombre(rs.getString("nombre"));
+        equipo.setCategoria(rs.getString("categoria"));
+        equipo.setDisponible(rs.getBoolean("disponible"));
+        return equipo;
+    }
+
 }
