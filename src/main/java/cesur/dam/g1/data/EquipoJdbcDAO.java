@@ -14,14 +14,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación de {@link DAO} para {@link Equipo} basada en JDBC.
+ * <p>
+ * Accede a la base de datos MySQL a través del {@link DataSource} recibido en
+ * el constructor, ejecutando consultas SQL sobre la tabla {@code Equipo}.
+ * </p>
+ */
 public class EquipoJdbcDAO implements DAO<Equipo> {
 
+    /** Origen de datos utilizado para obtener las conexiones JDBC. */
     private DataSource ds;
 
+    /**
+     * Crea una instancia del DAO.
+     *
+     * @param ds {@link DataSource} del que se obtendrán las conexiones
+     */
     public EquipoJdbcDAO(DataSource ds){
         this.ds = ds;
     }
 
+    /**
+     * Busca un equipo por su identificador.
+     *
+     * @param id identificador del equipo
+     * @return un {@link Optional} con el equipo encontrado, o vacío si no existe
+     * @throws RuntimeException si ocurre un error de SQL
+     */
     @Override
     public Optional<Equipo> findById(Long id) {
         String sql = "select * from Equipo where id=?";
@@ -42,6 +62,12 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
         return Optional.empty();
     }
 
+    /**
+     * Recupera todos los equipos de la base de datos.
+     *
+     * @return lista con todos los equipos
+     * @throws RuntimeException si ocurre un error de SQL
+     */
     @Override
     public List<Equipo> findAll() {
         String sql = "select * from Equipo";
@@ -62,6 +88,14 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
 
 
 
+    /**
+     * Inserta un nuevo equipo en la base de datos y le asigna el identificador
+     * generado.
+     *
+     * @param obj equipo a guardar
+     * @return el equipo guardado con su identificador actualizado
+     * @throws RuntimeException si ocurre un error de SQL
+     */
     @Override
     public Equipo save(Equipo obj) {
         String sql = "insert into Equipo (nombre, categoria, disponible) " +
@@ -86,6 +120,12 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
         return obj;
     }
 
+    /**
+     * Actualiza en la base de datos los datos de un equipo existente.
+     *
+     * @param entity equipo con los datos actualizados; debe tener identificador
+     * @throws RuntimeException si ocurre un error de SQL
+     */
     @Override
     public void update(Equipo entity) {
         String sql = "update Equipo set nombre=?, categoria=?, disponible=? " +
@@ -103,6 +143,12 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
         }
     }
 
+    /**
+     * Elimina de la base de datos el equipo con el identificador indicado.
+     *
+     * @param id identificador del equipo a eliminar
+     * @throws RuntimeException si ocurre un error de SQL
+     */
     @Override
     public void deleteById(Long id) {
         String sql = "delete from Equipo where id=?";
@@ -119,6 +165,14 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
 
     /* Métodos auxiliares */
 
+    /**
+     * Convierte la fila actual de un {@link ResultSet} en un objeto
+     * {@link Equipo}.
+     *
+     * @param rs resultado posicionado en la fila a mapear
+     * @return el equipo construido a partir de la fila actual
+     * @throws SQLException si ocurre un error al leer las columnas
+     */
     public static Equipo mapper(ResultSet rs) throws SQLException {
         Equipo equipo = new Equipo();
         equipo.setId(rs.getLong("id"));
