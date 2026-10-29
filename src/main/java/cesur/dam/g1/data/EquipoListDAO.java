@@ -5,6 +5,7 @@ import cesur.dam.g1.models.Equipo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.LongStream;
 
 /**
  * Enunciado del ejercicio: implementar el DAO en memoria usando una lista.
@@ -28,7 +29,9 @@ public class EquipoListDAO implements  DAO<Equipo> {
      */
     @Override
     public Optional<Equipo> findById(Long id) {
-        return Optional.empty();
+        return equipoList.stream()
+                .filter(e -> e.getId().equals(id))
+                .findFirst();
     }
 
     /**
@@ -38,7 +41,7 @@ public class EquipoListDAO implements  DAO<Equipo> {
      */
     @Override
     public List<Equipo> findAll() {
-        return List.of();
+        return equipoList;
     }
 
     /**
@@ -49,8 +52,18 @@ public class EquipoListDAO implements  DAO<Equipo> {
      */
     @Override
     public Equipo save(Equipo obj) {
-        return null;
+
+        long nextId = equipoList.stream()
+                .mapToLong(Equipo::getId)
+                .max()
+                .orElse(0L) + 1L;
+        obj.setId(nextId);
+
+        equipoList.add(obj);
+        return obj;
     }
+
+
 
     /**
      * Actualiza un equipo existente de la lista.
@@ -59,7 +72,14 @@ public class EquipoListDAO implements  DAO<Equipo> {
      */
     @Override
     public void update(Equipo entity) {
-
+        equipoList.stream()
+                .filter(e -> e.getId().equals(entity.getId()))
+                .findFirst()
+                .ifPresent(e -> {
+                    e.setNombre(entity.getNombre());
+                    e.setCategoria(entity.getCategoria());
+                    e.setDisponible(entity.getDisponible());
+                });
     }
 
     /**
@@ -69,7 +89,7 @@ public class EquipoListDAO implements  DAO<Equipo> {
      */
     @Override
     public void deleteById(Long id) {
-
+        equipoList.removeIf(e -> e.getId().equals(id));
     }
 
     /**
@@ -79,7 +99,9 @@ public class EquipoListDAO implements  DAO<Equipo> {
      * @return lista de equipos que coinciden con el nombre
      */
     public List<Equipo> findByNombre(String nombre){
-        return List.of();
+        return equipoList.stream()
+                .filter(e -> e.getNombre().equalsIgnoreCase(nombre))
+                .toList();
     }
 
     /**
@@ -89,7 +111,9 @@ public class EquipoListDAO implements  DAO<Equipo> {
      * @return lista de equipos que coinciden con la categoría
      */
     public List<Equipo> findByCategoria(String categoria){
-        return List.of();
+        return equipoList.stream()
+                .filter(e -> e.getCategoria().equalsIgnoreCase(categoria))
+                .toList();
     }
 
 }
