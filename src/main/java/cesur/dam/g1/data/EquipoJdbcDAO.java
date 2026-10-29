@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,21 +45,78 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
 
     @Override
     public List<Equipo> findAll() {
-        return List.of();
+        String sql = "select * from Equipo";
+        List<Equipo> equipos = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement pst = conn.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                Equipo equipo = new Equipo();
+                equipo.setId(rs.getLong("id"));
+                equipo.setNombre(rs.getString("nombre"));
+                equipo.setCategoria(rs.getString("categoria"));
+                equipo.setDisponible(rs.getBoolean("disponible"));
+                equipos.add(equipo);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return equipos;
     }
 
     @Override
     public Equipo save(Equipo obj) {
-        return null;
+        String sql = "insert into Equipo (nombre, categoria, disponible) " +
+                     "VALUES (?,?,?)";
+
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pst.setString(1, obj.getNombre());
+            pst.setString(2, obj.getCategoria());
+            pst.setBoolean(3, obj.getDisponible());
+            pst.executeUpdate();
+
+            try (ResultSet rs = pst.getGeneratedKeys()) {
+                if (rs.next()) {
+                    obj.setId(rs.getLong(1));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return obj;
     }
 
     @Override
     public void update(Equipo entity) {
+        String sql = "update Equipo set nombre=?, categoria=?, disponible=? " +
+                     "where id=?";
 
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setString(1, entity.getNombre());
+            pst.setString(2, entity.getCategoria());
+            pst.setBoolean(3, entity.getDisponible());
+            pst.setLong(4, entity.getId());
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void deleteById(Long id) {
+        String sql = "delete from Equipo where id=?";
 
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setLong(1, id);
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

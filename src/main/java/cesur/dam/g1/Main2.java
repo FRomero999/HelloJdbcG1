@@ -9,13 +9,11 @@ public class Main2 {
     public static void main(String[] args)
     {
         var dao = new EquipoJdbcDAO();
-        Optional<Equipo> p = dao.findById(1L);
+        Optional<Equipo> p = dao.findById(10L);
 
-        if( p.isPresent() ){
-            System.out.println( p.get() );
-        }else{
-            System.out.println("No encontrado");
-        }
+        p.ifPresent( (equipo) -> {
+            dao.deleteById(equipo.getId());
+        });
 
     }
 }
