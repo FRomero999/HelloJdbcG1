@@ -1,7 +1,9 @@
 package cesur.dam.g1.data;
 
 import cesur.dam.g1.models.Equipo;
+import com.mysql.cj.jdbc.MysqlDataSource;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,15 +16,17 @@ import java.util.Optional;
 
 public class EquipoJdbcDAO implements DAO<Equipo> {
 
-    private String url = "jdbc:mysql://localhost:3307/ad";
-    private String username = "user" ;
-    private String password = "pwd" ;
+    private DataSource ds;
+
+    public EquipoJdbcDAO(DataSource ds){
+        this.ds = ds;
+    }
 
     @Override
     public Optional<Equipo> findById(Long id) {
         String sql = "select * from Equipo where id=?";
 
-        try (Connection conn = DriverManager.getConnection(url, username, password);
+        try (Connection conn = ds.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setLong(1, id);
 
@@ -43,7 +47,7 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
         String sql = "select * from Equipo";
         List<Equipo> equipos = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(url, username, password);
+        try (Connection conn = ds.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql);
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
@@ -63,7 +67,7 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
         String sql = "insert into Equipo (nombre, categoria, disponible) " +
                      "VALUES (?,?,?)";
 
-        try (Connection conn = DriverManager.getConnection(url, username, password);
+        try (Connection conn = ds.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, obj.getNombre());
             pst.setString(2, obj.getCategoria());
@@ -87,7 +91,7 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
         String sql = "update Equipo set nombre=?, categoria=?, disponible=? " +
                      "where id=?";
 
-        try (Connection conn = DriverManager.getConnection(url, username, password);
+        try (Connection conn = ds.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, entity.getNombre());
             pst.setString(2, entity.getCategoria());
@@ -103,7 +107,7 @@ public class EquipoJdbcDAO implements DAO<Equipo> {
     public void deleteById(Long id) {
         String sql = "delete from Equipo where id=?";
 
-        try (Connection conn = DriverManager.getConnection(url, username, password);
+        try (Connection conn = ds.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setLong(1, id);
             pst.executeUpdate();
